@@ -1,5 +1,12 @@
 #include "terwinal.h"
 
+#include <codecvt>
+#include <string>
+#include <locale>
+
+typedef std::wstring_convert<std::codecvt_utf8<char32_t>, char32_t> u8_to_u32;
+typedef std::wstring_convert<std::codecvt_utf8_utf16<char32_t>, char32_t> u32_to_u8;
+
 namespace terwinal {
     
     class Event;
@@ -56,6 +63,26 @@ namespace terwinal {
     
     class TextBody;
 
-    
+    std::u32string to_u32(std::string str) {
+        std::u32string u32_str;
+        u8_to_u32 convert; // WHY IS THIS SO LONG
+        return convert.from_bytes(str);
+    }
+
+    std::string to_u8(std::u32string u32_str) {
+        u32_to_u8 convert;
+        return convert.to_bytes(u32_str);
+    }
+
+    void TextBody::render(bool clear) {
+        if (clear && std::system("CLS"))
+            std::system("clear");
+
+        std::string line;
+        while (std::getline(content, line)) {
+            std::u32string __u32_line { to_u32(line) }; // todo do styling stuff with this (text wrapping, whatever)
+            std::cout << to_u8(__u32_line) << std::endl;
+        }
+    }
 
 }
